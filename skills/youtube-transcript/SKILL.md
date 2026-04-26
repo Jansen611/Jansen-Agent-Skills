@@ -85,12 +85,20 @@ source ~/.zshrc && which yt-dlp
 yt-dlp --list-subs "YOUTUBE_URL"
 ```
 
+### Get Video Title
+
+Use the video title as the output filename:
+
+```bash
+TITLE=$(yt-dlp --get-title "YOUTUBE_URL" | sed 's/[/:*?"<>|]/-/g')
+```
+
 ### Download Manual Subtitles (Preferred)
 
 Highest quality, human-created:
 
 ```bash
-yt-dlp --write-sub --sub-langs en --skip-download --output "transcript" "YOUTUBE_URL"
+yt-dlp --write-sub --sub-langs en --skip-download --output "$TITLE" "YOUTUBE_URL"
 ```
 
 ### Download Auto-Generated Subtitles (Fallback)
@@ -98,37 +106,58 @@ yt-dlp --write-sub --sub-langs en --skip-download --output "transcript" "YOUTUBE
 If manual subtitles aren't available:
 
 ```bash
-yt-dlp --write-auto-sub --sub-langs en --skip-download --output "transcript" "YOUTUBE_URL"
+yt-dlp --write-auto-sub --sub-langs en --skip-download --output "$TITLE" "YOUTUBE_URL"
 ```
 
-Both commands create a `.vtt` file (WebVTT subtitle format).
-
-### Download to Specific Directory
-
-```bash
-yt-dlp --write-auto-sub --sub-langs en --skip-download --output "/path/to/output" "YOUTUBE_URL"
-```
+Both commands create a `.vtt` file named `<videoTitle>.en.vtt`.
 
 ## Post-Processing
 
-### Convert VTT to Plain Text
+### Convert VTT to Timestamped Transcript
 
-VTT files contain duplicate lines. Convert to clean text:
+VTT auto-generated subtitles contain duplicate lines. Extract clean text with timestamps.
+
+Use the VTT filename from the download step (e.g. `<videoTitle>.en.vtt`).
+
+**The first line of the output file must be a markdown link to the source video:**
 
 ```bash
+echo "Source: [$TITLE](YOUTUBE_URL)" > "$TITLE.md"
+echo >> "$TITLE.md"
 python3 -c "
-import sys, re
+import re
+
+with open('$TITLE.en.vtt', 'r') as f:
+    lines = f.readlines()
+
 seen = set()
-with open('transcript.en.vtt', 'r') as f:
-    for line in f:
-        line = line.strip()
-        if line and not line.startswith('WEBVTT') and not line.startswith('Kind:') and not line.startswith('Language:') and '-->' not in line:
-            clean = re.sub('<[^>]*>', '', line)
-            clean = clean.replace('&amp;', '&').replace('&gt;', '>').replace('&lt;', '<')
-            if clean and clean not in seen:
-                print(clean)
-                seen.add(clean)
-" > transcript.txt
+i = 0
+while i < len(lines):
+    line = lines[i].strip()
+    m = re.match(r'(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})', line)
+    if m:
+        start, end = m.group(1), m.group(2)
+        def to_ms(t):
+            h, mn, rest = t.split(':')
+            s, ms = rest.split('.')
+            return int(h)*3600000 + int(mn)*60000 + int(s)*1000 + int(ms)
+        if to_ms(end) - to_ms(start) <= 20:
+            if i + 1 < len(lines):
+                text = lines[i + 1].strip()
+                text = re.sub('<[^>]*>', '', text)
+                text = text.replace('&amp;', '&').replace('&gt;', '>').replace('&lt;', '<')
+                if text and text not in seen:
+                    print(f'[{start}] {text}')
+                    seen.add(text)
+    i += 1
+" >> "$TITLE.md"
+```
+```
+Source: [The AI Native Engineer](https://www.youtube.com/watch?v=xxxxx)
+
+[00:00:01.670] there is this emergence of kind of like
+[00:00:03.990] a new I would say class of like engineer
+[00:00:05.884] which is like the AI native engineer
 ```
 
 ### Complete Workflow
@@ -137,35 +166,57 @@ with open('transcript.en.vtt', 'r') as f:
 VIDEO_URL="YOUTUBE_URL"
 OUTPUT_DIR="/Users/jansen/OpenWork"
 
-# Download auto-generated English subtitles
 cd "$OUTPUT_DIR"
-yt-dlp --write-auto-sub --sub-langs en --skip-download --output "transcript" "$VIDEO_URL"
+
+# Get video title and sanitize for filename
+TITLE=$(yt-dlp --get-title "$VIDEO_URL" | sed 's/[/:*?"<>|]/-/g')
+
+# Download auto-generated English subtitles
+yt-dlp --write-auto-sub --sub-langs en --skip-download --output "$TITLE" "$VIDEO_URL"
 
 # Find the VTT file
-VTT_FILE=$(ls transcript.*.vtt | head -n 1)
+VTT_FILE="$TITLE.en.vtt"
 
-# Convert to plain text with deduplication
+# Write source link as first line
+echo "Source: [$TITLE]($VIDEO_URL)" > "$TITLE.md"
+echo >> "$TITLE.md"
+
+# Convert to timestamped transcript
 python3 -c "
-import sys, re
-seen = set()
-with open('$VTT_FILE', 'r') as f:
-    for line in f:
-        line = line.strip()
-        if line and not line.startswith('WEBVTT') and not line.startswith('Kind:') and not line.startswith('Language:') and '-->' not in line:
-            clean = re.sub('<[^>]*>', '', line)
-            clean = clean.replace('&amp;', '&').replace('&gt;', '>').replace('&lt;', '<')
-            if clean and clean not in seen:
-                print(clean)
-                seen.add(clean)
-" > transcript.txt
+import re
 
-echo "Transcription complete: transcript.txt"
+with open('$VTT_FILE', 'r') as f:
+    lines = f.readlines()
+
+seen = set()
+i = 0
+while i < len(lines):
+    line = lines[i].strip()
+    m = re.match(r'(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})', line)
+    if m:
+        start, end = m.group(1), m.group(2)
+        def to_ms(t):
+            h, mn, rest = t.split(':')
+            s, ms = rest.split('.')
+            return int(h)*3600000 + int(mn)*60000 + int(s)*1000 + int(ms)
+        if to_ms(end) - to_ms(start) <= 20:
+            if i + 1 < len(lines):
+                text = lines[i + 1].strip()
+                text = re.sub('<[^>]*>', '', text)
+                text = text.replace('&amp;', '&').replace('&gt;', '>').replace('&lt;', '<')
+                if text and text not in seen:
+                    print(f'[{start}] {text}')
+                    seen.add(text)
+    i += 1
+" >> "$TITLE.md"
+
+echo "Transcription complete: $TITLE.md"
 ```
 
 ## Output Formats
 
-- **VTT format** (`.vtt`): Includes timestamps and formatting
-- **Plain text** (`.txt`): Just the text content, good for reading or analysis
+- **VTT format** (`.vtt`): Raw subtitle file with word-level timing markup
+- **Timestamped transcript** (`.md`): Clean text with line-level timestamps, e.g. `[00:01:23.456] text here`
 
 ## Common Issues
 
