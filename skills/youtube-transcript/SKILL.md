@@ -20,41 +20,59 @@ Activate this skill when the user:
 ## How It Works
 
 ### Priority Order:
-1. **Check if yt-dlp is installed** - install if needed
-2. **List available subtitles** - see what's actually available
-3. **Try manual subtitles first** (`--write-sub`) - highest quality
-4. **Fallback to auto-generated** (`--write-auto-sub`) - usually available
-5. **Last resort: Whisper transcription** - if no subtitles exist (requires user confirmation)
-6. **Confirm the download** and show the user where the file is saved
-7. **Optionally clean up** the VTT format if the user wants plain text
+1. **Check if yt-dlp is available** - try `which yt-dlp`
+2. **If not found, reload shell environment** - run `source ~/.zshrc` and check again (**do NOT skip this**)
+3. **If still not found, check common install paths** - look in Python bin directories
+4. **Only install yt-dlp as last resort** - after Steps 1-3 all failed
+5. **List available subtitles** - see what's actually available
+6. **Try manual subtitles first** (`--write-sub`) - highest quality
+7. **Fallback to auto-generated** (`--write-auto-sub`) - usually available
+8. **Last resort: Whisper transcription** - if no subtitles exist (requires user confirmation)
+9. **Confirm the download** and show the user where the file is saved
+10. **Optionally clean up** the VTT format if the user wants plain text
 
 ## Environment Setup
 
 ### Check yt-dlp Installation
 
+**IMPORTANT: Follow these steps IN ORDER. Do NOT install yt-dlp until all PATH resolution steps have been tried.**
+
+#### Step 1: Check if yt-dlp is available
+
 ```bash
 which yt-dlp || command -v yt-dlp
 ```
 
-### If Not Installed
+#### Step 2: If not found, reload shell environment first (macOS)
+
+On macOS, the terminal session may not have the latest PATH. **Always try this before installing:**
+
+```bash
+source ~/.zshrc && which yt-dlp
+```
+
+#### Step 3: If still not found, check common install locations manually
+
+```bash
+ls /Library/Frameworks/Python.framework/Versions/*/bin/yt-dlp 2>/dev/null || ls ~/Library/Python/*/bin/yt-dlp 2>/dev/null
+```
+
+If found in one of these paths, add it to PATH for this session:
+
+```bash
+export PATH="<found_directory>:$PATH"
+```
+
+#### Step 4: Only install if Steps 2 and 3 both failed
 
 ```bash
 pip3 install yt-dlp
 ```
 
-### PATH Issue on macOS
+After installation, reload PATH:
 
-If yt-dlp is installed but not found, add Python 3.13 path to ~/.zshrc:
 ```bash
-echo 'export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-### SSL Certificate Issue (macOS)
-
-If you get `CERTIFICATE_VERIFY_FAILED` error, run:
-```bash
-/Applications/Python\ 3.13/Install\ Certificates.command
+source ~/.zshrc && which yt-dlp
 ```
 
 ## Usage
@@ -153,7 +171,6 @@ echo "Transcription complete: transcript.txt"
 
 | Error | Solution |
 |-------|----------|
-| `command not found: yt-dlp` | Add Python 3.13 to PATH, or run with full path |
-| `CERTIFICATE_VERIFY_FAILED` | Run Install Certificates.command |
+| `command not found: yt-dlp` | Run `source ~/.zshrc` first, then check common Python bin paths |
 | `No subtitles for requested languages` | Try `--write-auto-sub` instead of `--write-sub` |
 | Python 3.9 deprecated | Upgrade to Python 3.10+ |
