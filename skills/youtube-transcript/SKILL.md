@@ -93,6 +93,17 @@ Use the video title as the output filename:
 TITLE=$(yt-dlp --get-title "YOUTUBE_URL" | sed 's/[/:*?"<>|]/-/g')
 ```
 
+### Derive Snake Case Filename
+
+Convert the title to snake_case, removing special characters (`.` `,` `'` etc.), and prefix with `Youtube-Transcript-`:
+
+```bash
+SNAKE_TITLE=$(echo "$TITLE" | sed "s/[^a-zA-Z0-9 ]//g" | sed 's/  */ /g' | sed 's/ /_/g')
+OUTPUT_MD="Youtube-Transcript-$SNAKE_TITLE.md"
+```
+
+Example: `From Writing Code to Managing Agents. Most Engineers Aren't Ready - Stanford University, Mihail Eric` becomes `Youtube-Transcript-From_Writing_Code_to_Managing_Agents_Most_Engineers_Arent_Ready__Stanford_University_Mihail_Eric.md`
+
 ### Download Manual Subtitles (Preferred)
 
 Highest quality, human-created:
@@ -122,8 +133,8 @@ Use the VTT filename from the download step (e.g. `<videoTitle>.en.vtt`).
 **The first line of the output file must be a markdown link to the source video:**
 
 ```bash
-echo "Source: [$TITLE](YOUTUBE_URL)" > "$TITLE.md"
-echo >> "$TITLE.md"
+echo "Source: [$TITLE](YOUTUBE_URL)" > "$OUTPUT_MD"
+echo >> "$OUTPUT_MD"
 python3 -c "
 import re
 
@@ -150,7 +161,7 @@ while i < len(lines):
                     print(f'[{start}] {text}')
                     seen.add(text)
     i += 1
-" >> "$TITLE.md"
+" >> "$OUTPUT_MD"
 ```
 ```
 Source: [The AI Native Engineer](https://www.youtube.com/watch?v=xxxxx)
@@ -171,6 +182,10 @@ cd "$OUTPUT_DIR"
 # Get video title and sanitize for filename
 TITLE=$(yt-dlp --get-title "$VIDEO_URL" | sed 's/[/:*?"<>|]/-/g')
 
+# Derive snake_case output filename with Youtube-Transcript- prefix
+SNAKE_TITLE=$(echo "$TITLE" | sed "s/[^a-zA-Z0-9 ]//g" | sed 's/  */ /g' | sed 's/ /_/g')
+OUTPUT_MD="Youtube-Transcript-$SNAKE_TITLE.md"
+
 # Download auto-generated English subtitles
 yt-dlp --write-auto-sub --sub-langs en --skip-download --output "$TITLE" "$VIDEO_URL"
 
@@ -178,8 +193,8 @@ yt-dlp --write-auto-sub --sub-langs en --skip-download --output "$TITLE" "$VIDEO
 VTT_FILE="$TITLE.en.vtt"
 
 # Write source link as first line
-echo "Source: [$TITLE]($VIDEO_URL)" > "$TITLE.md"
-echo >> "$TITLE.md"
+echo "Source: [$TITLE]($VIDEO_URL)" > "$OUTPUT_MD"
+echo >> "$OUTPUT_MD"
 
 # Convert to timestamped transcript
 python3 -c "
@@ -208,15 +223,15 @@ while i < len(lines):
                     print(f'[{start}] {text}')
                     seen.add(text)
     i += 1
-" >> "$TITLE.md"
+" >> "$OUTPUT_MD"
 
-echo "Transcription complete: $TITLE.md"
+echo "Transcription complete: $OUTPUT_MD"
 ```
 
 ## Output Formats
 
 - **VTT format** (`.vtt`): Raw subtitle file with word-level timing markup
-- **Timestamped transcript** (`.md`): Clean text with line-level timestamps, e.g. `[00:01:23.456] text here`
+- **Timestamped transcript** (`.md`): Named `Youtube-Transcript-<Snake_Case_Title>.md`. Clean text with line-level timestamps, e.g. `[00:01:23.456] text here`
 
 ## Common Issues
 
