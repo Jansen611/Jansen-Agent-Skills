@@ -21,15 +21,16 @@ Activate this skill when the user:
 
 ### Priority Order:
 1. **Check if yt-dlp is available** - try `which yt-dlp`
-2. **If not found, reload shell environment** - run `source ~/.zshrc` and check again (**do NOT skip this**)
-3. **If still not found, check common install paths** - look in Python bin directories
-4. **Only install yt-dlp as last resort** - after Steps 1-3 all failed
-5. **List available subtitles** - see what's actually available
-6. **Try manual subtitles first** (`--write-sub`) - highest quality
-7. **Fallback to auto-generated** (`--write-auto-sub`) - usually available
-8. **Last resort: Whisper transcription** - if no subtitles exist (requires user confirmation)
-9. **Confirm the download** and show the user where the file is saved
-10. **Optionally clean up** the VTT format if the user wants plain text
+2. **If not found, reload shell environment** - `source ~/.zshrc && which yt-dlp` (macOS terminal may not auto-load rc files)
+3. **If still not found, check ~/.venv** - try `test -f ~/.venv/bin/yt-dlp`
+4. **If found in ~/.venv, add to PATH** - `export PATH="$HOME/.venv/bin:$PATH"`
+5. **Only install yt-dlp as last resort** - after Steps 1-4 all failed
+6. **List available subtitles** - see what's actually available
+7. **Try manual subtitles first** (`--write-sub`) - highest quality
+8. **Fallback to auto-generated** (`--write-auto-sub`) - usually available
+9. **Last resort: Whisper transcription** - if no subtitles exist (requires user confirmation)
+10. **Confirm the download** and show the user where the file is saved
+11. **Optionally clean up** the VTT format if the user wants plain text
 
 ## Environment Setup
 
@@ -37,42 +38,48 @@ Activate this skill when the user:
 
 **IMPORTANT: Follow these steps IN ORDER. Do NOT install yt-dlp until all PATH resolution steps have been tried.**
 
-#### Step 1: Check if yt-dlp is available
+#### Step 1: Check if yt-dlp is in PATH
 
 ```bash
 which yt-dlp || command -v yt-dlp
 ```
 
-#### Step 2: If not found, reload shell environment first (macOS)
+If found → skip to [Usage](#usage).
 
-On macOS, the terminal session may not have the latest PATH. **Always try this before installing:**
+#### Step 2: Reload shell environment and re-check (macOS)
 
-```bash
-source ~/.zshrc && which yt-dlp
-```
-
-#### Step 3: If still not found, check common install locations manually
-
-```bash
-ls /Library/Frameworks/Python.framework/Versions/*/bin/yt-dlp 2>/dev/null || ls ~/Library/Python/*/bin/yt-dlp 2>/dev/null
-```
-
-If found in one of these paths, add it to PATH for this session:
-
-```bash
-export PATH="<found_directory>:$PATH"
-```
-
-#### Step 4: Only install if Steps 2 and 3 both failed
-
-```bash
-pip3 install yt-dlp
-```
-
-After installation, reload PATH:
+On macOS, VS Code's terminal may not auto-load `~/.zshrc`, so environment variables (like PATH additions for `~/.venv`) are missing. **Always try this before checking other paths:**
 
 ```bash
 source ~/.zshrc && which yt-dlp
+```
+
+If found → skip to [Usage](#usage).
+
+#### Step 3: Check if yt-dlp exists in ~/.venv
+
+```bash
+test -f ~/.venv/bin/yt-dlp && echo "found"
+```
+
+If found → add to PATH for this session, then proceed to [Usage](#usage):
+
+```bash
+export PATH="$HOME/.venv/bin:$PATH"
+```
+
+#### Step 4: Only install if Steps 1-3 all failed
+
+Install yt-dlp into the shared virtual environment:
+
+```bash
+~/.venv/bin/pip install yt-dlp
+```
+
+Then add to PATH:
+
+```bash
+export PATH="$HOME/.venv/bin:$PATH"
 ```
 
 ## Usage
