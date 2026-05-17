@@ -228,6 +228,41 @@ himalaya message copy 42 --folder "Projects"
 himalaya message delete 42
 ```
 
+### Attachment Operations
+
+```bash
+# Download all attachments from a message
+himalaya attachment download 42
+```
+
+#### ⚠️ Critical: Default Download Folder
+
+himalaya **ignores `cwd`** and always downloads attachments to the **default download folder configured per account** during `himalaya account configure`. The `cd` command has NO effect on download location — do NOT use it before `himalaya attachment download`.
+
+**Correct approach**: download first, then `mv` files to the desired target folder:
+
+```bash
+# Step 1: Download (files go to account's default download folder)
+himalaya attachment download 42
+
+# Step 2: Move files to target folder
+mv downloaded_file.pdf /path/to/target/folder/
+
+# Batch download, then move
+for id in 42 43 44; do
+    himalaya attachment download "$id"
+done
+mv *.pdf /path/to/target/folder/
+```
+
+To find out the current default download folder, check the account config:
+```bash
+# View account configuration
+himalaya account list --output json
+```
+
+How to check which messages have attachments:
+
 ### Flag Management
 
 ```bash
@@ -300,20 +335,87 @@ himalaya message read 42
 himalaya message reply 42
 ```
 
-### JSON Output Parsing
+### Advanced Keyword Search via Python Pipeline
 
-Envelope list in JSON format returns an array of objects with keys like:
-`id`, `subject`, `from`, `to`, `date`, `flags`
-
-Use `jq` to parse:
+When built-in search is insufficient (single-word limitation, or need to search across multiple fields), pipe JSON output to Python:
 
 ```bash
-# Get IDs of all envelopes on first page
-himalaya envelope list --page 1 --output json | jq '.[].id'
+# Search by multiple keywords across subject + from fields
+himalaya envelope list --folder INBOX --page 1 --page-size 500 --output json | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+matches = []
+for e in data:
+    subj = (e.get('subject') or '').lower()
+    # IMPORTANT: 'from' is an OBJECT with 'name' and 'addr' keys, not a string
+    frm_addr = ''
+    frm_name = ''
+    if isinstance(e.get('from'), dict):
+        frm_addr = (e.get('from').get('addr') or '').lower()
+        frm_name = (e.get('from').get('name') or '').lower()
+    if any(kw in subj or kw in frm_addr or kw in frm_name for kw in ['microsoft', 'msbill', 'msft']):
+        matches.append({
+            'id': e.get('id'),
+            'subject': e.get('subject'),
+            'from': e.get('from'),
+            'date': e.get('date'),
+            'has_attachment': e.get('has_attachment')
+        })
+print(json.dumps(matches, indent=2))
+print(f'Total: {len(data)}, Matched: {len(matches)}', file=sys.stderr)
+"
 
-# Get subjects from a sender
-himalaya envelope list "from alice" --output json | jq '.[].subject'
+# Paginate through large inboxes (increase --page for older emails)
+himalaya envelope list --folder INBOX --page 2 --page-size 500 --output json | python3 -c "..."
+
+# Also search Archive folder for old emails
+himalaya envelope list --folder Archive --page 1 --page-size 500 --output json | python3 -c "..."
 ```
+
+### Extract Links from Email Body
+
+```bash
+# message read returns raw text (not JSON), use grep to extract URLs
+himalaya message read 42 2>&1 | grep -o 'https://admin\.microsoft\.com[^ ]*'
+
+# Or extract all HTTPS links
+himalaya message read 42 2>&1 | grep -oP 'https?://[^\s<>\"'\\'']+' 
+```
+
+### Collect Invoice Attachments from Email (End-to-End Workflow)
+
+```bash
+# 1. Search for invoice emails with attachments across multiple pages
+himalaya envelope list --folder INBOX --page 1 --page-size 500 --output json | python3 -c "
+import json, sys
+for e in json.load(sys.stdin):
+    subj = (e.get('subject') or '').lower()
+    if 'invoice' in subj and e.get('has_attachment'):
+        print(json.dumps({'id':e['id'],'date':e['date'],'subject':e['subject']}))
+"
+
+# 2. Download attachments (files land in account's default download folder)
+mkdir -p /desired/target/folder
+for id in 42 43 44; do
+    himalaya attachment download "$id"
+done
+
+# 3. Move downloaded files to target folder
+mv *.pdf /desired/target/folder/
+
+# 4. Inspect downloaded PDFs (e.g., with markitdown)
+cd /desired/target/folder
+for f in *.pdf; do
+    markitdown "$f" | head -10
+done
+
+# 5. Rename files with meaningful names based on content
+```
+
+### JSON Structure Caveats
+
+- **`from` and `to` are objects**: `{"name": "Microsoft", "addr": "noreply@microsoft.com"}`, NOT strings. Always check `isinstance(e.get('from'), dict)` before accessing `.get('addr')`.
+- **`message read` returns raw text**, not a JSON dict. Pipe directly to `grep` or string parsing. Use `--output json` only for `envelope list` and `folder list`.
 
 ---
 
