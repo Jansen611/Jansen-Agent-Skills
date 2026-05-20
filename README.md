@@ -9,7 +9,7 @@ These skills are small, self-contained, and composable. Each one tells an agent 
 Clone this repo and copy the skills you need into your agent's skills directory:
 
 ```bash
-git clone https://github.com/Jansen-Tan/Agent-Skills.git
+git clone https://github.com/Jansen611/Agent-Skills.git
 ```
 
 Each skill lives in `skills/<name>/SKILL.md`. Drop them into your agent's skills folder and you're ready to go.
@@ -23,6 +23,7 @@ Each skill lives in `skills/<name>/SKILL.md`. Drop them into your agent's skills
 | [**markitdown-python**](skills/markitdown-python/SKILL.md) | Convert files to Markdown using Microsoft's MarkItDown. | Read PDF/Word/Excel/PPT, extract text from documents, transcribe audio |
 | [**pptx**](skills/pptx/SKILL.md) | Create professional PowerPoint presentations with pptxgenjs. | Make a slide deck, generate .pptx files, create pitch decks |
 | [**youtube-transcript**](skills/youtube-transcript/SKILL.md) | Download YouTube video transcripts via yt-dlp. | Get captions/subtitles, transcribe YouTube videos, extract video text |
+| [**grill-me**](skills/grill-me/SKILL.md) | Grilling session to stress-test a plan or design with relentless questions until every branch is resolved. _Derived from [@mattpocock](https://github.com/mattpocock/skills)._ | Get grilled on a design, clarify a plan, resolve decision trees |
 
 ## Why These Skills Exist
 
@@ -55,4 +56,4 @@ These skills are personal tools I maintain for my own workflow. If you find them
 
 ## License
 
-MIT © 2026 Jansen Tan — see [LICENSE](LICENSE) for details.
+MIT © 2026 Jansen Lin — see [LICENSE](LICENSE) for details.
