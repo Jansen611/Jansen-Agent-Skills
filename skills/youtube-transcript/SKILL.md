@@ -144,33 +144,7 @@ Use the VTT filename from the download step (e.g. `<videoTitle>.en.vtt`).
 ```bash
 echo "Source: [$TITLE](YOUTUBE_URL)" > "$OUTPUT_MD"
 echo >> "$OUTPUT_MD"
-python3 -c "
-import re
-
-with open('$TITLE.en.vtt', 'r') as f:
-    lines = f.readlines()
-
-seen = set()
-i = 0
-while i < len(lines):
-    line = lines[i].strip()
-    m = re.match(r'(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})', line)
-    if m:
-        start, end = m.group(1), m.group(2)
-        def to_ms(t):
-            h, mn, rest = t.split(':')
-            s, ms = rest.split('.')
-            return int(h)*3600000 + int(mn)*60000 + int(s)*1000 + int(ms)
-        if to_ms(end) - to_ms(start) <= 20:
-            if i + 1 < len(lines):
-                text = lines[i + 1].strip()
-                text = re.sub('<[^>]*>', '', text)
-                text = text.replace('&amp;', '&').replace('&gt;', '>').replace('&lt;', '<')
-                if text and text not in seen:
-                    print(f'[{start}] {text}')
-                    seen.add(text)
-    i += 1
-" >> "$OUTPUT_MD"
+python3 scripts/vtt_to_transcript.py "$TITLE.en.vtt" >> "$OUTPUT_MD"
 ```
 ```
 Source: [The AI Native Engineer](https://www.youtube.com/watch?v=xxxxx)
@@ -206,33 +180,7 @@ echo "Source: [$TITLE]($VIDEO_URL)" > "$OUTPUT_MD"
 echo >> "$OUTPUT_MD"
 
 # Convert to timestamped transcript
-python3 -c "
-import re
-
-with open('$VTT_FILE', 'r') as f:
-    lines = f.readlines()
-
-seen = set()
-i = 0
-while i < len(lines):
-    line = lines[i].strip()
-    m = re.match(r'(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})', line)
-    if m:
-        start, end = m.group(1), m.group(2)
-        def to_ms(t):
-            h, mn, rest = t.split(':')
-            s, ms = rest.split('.')
-            return int(h)*3600000 + int(mn)*60000 + int(s)*1000 + int(ms)
-        if to_ms(end) - to_ms(start) <= 20:
-            if i + 1 < len(lines):
-                text = lines[i + 1].strip()
-                text = re.sub('<[^>]*>', '', text)
-                text = text.replace('&amp;', '&').replace('&gt;', '>').replace('&lt;', '<')
-                if text and text not in seen:
-                    print(f'[{start}] {text}')
-                    seen.add(text)
-    i += 1
-" >> "$OUTPUT_MD"
+python3 scripts/vtt_to_transcript.py "$VTT_FILE" >> "$OUTPUT_MD"
 
 echo "Transcription complete: $OUTPUT_MD"
 ```

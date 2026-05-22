@@ -6,14 +6,11 @@ description: |
   Outputs JSON for easy parsing by scripts and AI agents.
 
   Triggers when user mentions:
-  - "check email" or "check inbox"
-  - "read my emails" or "list emails"
-  - "send email" or "compose email"
-  - "reply to email" or "forward email"
-  - "delete email" or "move email"
+  - "check email", "read my emails", "list emails", or "himalaya"
+  - "send", "reply to", "forward", "delete", or "move" emails
   - "search emails" or "filter emails"
-  - "himalaya" explicitly
   - wants to manage email accounts from terminal
+  - "download attachments" from email, or "save email attachments"
 author: Jansen Lin
 license: MIT
 allowed-tools: Bash

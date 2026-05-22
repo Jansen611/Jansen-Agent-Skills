@@ -195,13 +195,5 @@ data.to_csv('stock_data.csv')
 ### Example: Quick Stock Snapshot
 
 ```bash
-~/.venv/bin/python << 'EOF'
-import yfinance as yf
-
-tickers = ["AAPL", "MSFT", "GOOGL"]
-for t in tickers:
-    tk = yf.Ticker(t)
-    info = tk.info
-    print(f"{info.get('shortName', t):40s} ${info.get('currentPrice', 'N/A')}  MCap: {info.get('marketCap', 'N/A'):,}")
-EOF
+~/.venv/bin/python scripts/stock_snapshot.py AAPL MSFT GOOGL
 ```
