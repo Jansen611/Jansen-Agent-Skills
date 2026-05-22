@@ -45,10 +45,15 @@ def main():
     with open(cert_path, 'wb') as f:
         f.write(leaf_cert)
 
-    subprocess.run([
+    # Note: openssl -out flag is unreliable on some macOS versions;
+    # capture stdout and write manually instead.
+    result = subprocess.run([
         'openssl', 'x509', '-inform', 'DER', '-in', cert_path,
-        '-pubkey', '-noout', '-out', pubkey_path
-    ], check=True)
+        '-pubkey', '-noout'
+    ], capture_output=True, text=True, check=True)
+
+    with open(pubkey_path, 'w') as f:
+        f.write(result.stdout)
 
     # --- Step 2: Decrypt the Apple Archive ---
     subprocess.run([

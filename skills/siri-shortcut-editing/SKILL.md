@@ -79,17 +79,19 @@ The decoded archive starts with `AA01` metadata; the actual workflow bplist is e
 
 ## Workflow: Edit & Re-sign XML → .shortcut
 
+> **⚠️ `shortcuts sign` requires the input file to use a `.wflow` extension, otherwise it fails.**
+
 ### Step 1: Convert XML back to bplist
 
 ```bash
-plutil -convert binary1 -o /tmp/workflow.plist OUTPUT.xml
+plutil -convert binary1 -o /tmp/workflow.wflow OUTPUT.xml
 ```
 
 ### Step 2: Sign the shortcut
 
 ```bash
 shortcuts sign -m anyone \
-  -i /tmp/workflow.plist \
+  -i /tmp/workflow.wflow \
   -o OUTPUT.shortcut
 ```
 
@@ -140,8 +142,8 @@ python3 scripts/decode_shortcut.py MyShortcut.shortcut MyShortcut.xml
 # Edit MyShortcut.xml manually or programmatically...
 
 # Re-sign
-plutil -convert binary1 -o /tmp/workflow.plist MyShortcut.xml
-shortcuts sign -m anyone -i /tmp/workflow.plist -o MyShortcut.shortcut
+plutil -convert binary1 -o /tmp/workflow.wflow MyShortcut.xml
+shortcuts sign -m anyone -i /tmp/workflow.wflow -o MyShortcut.shortcut
 ```
 
 The full decode logic lives in `scripts/decode_shortcut.py` — read that file if you need to understand or modify the internals.
