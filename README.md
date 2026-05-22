@@ -12,7 +12,7 @@ Clone this repo and copy the skills you need into your agent's skills directory:
 git clone https://github.com/Jansen611/Agent-Skills.git
 ```
 
-Each skill lives in `skills/<name>/SKILL.md`. Drop them into your agent's skills folder and you're ready to go.
+Each skill lives in `skills/<name>/` — some include reusable scripts under `scripts/`. Copy the entire skill folder into your agent's skills directory and you're ready to go.
 
 ## Skills
 
