@@ -10,6 +10,8 @@ description: |
   - "yahoo finance" or "yfinance"
   - wants to pull ticker data, historical prices, fundamentals
   - "fetch company financials" or "market cap"
+author: Jansen Lin
+license: MIT
 allowed-tools: Bash
 ---
 

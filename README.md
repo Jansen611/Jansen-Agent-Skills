@@ -22,6 +22,7 @@ Each skill lives in `skills/<name>/SKILL.md`. Drop them into your agent's skills
 | [**yahoo-finance-python**](skills/yahoo-finance-python/SKILL.md) | Stock quotes, historical prices, fundamentals via yfinance. | Get stock price, download market data, fetch company financials |
 | [**markitdown-python**](skills/markitdown-python/SKILL.md) | Convert files to Markdown using Microsoft's MarkItDown. | Read PDF/Word/Excel/PPT, extract text from documents, transcribe audio |
 | [**pptx**](skills/pptx/SKILL.md) | Create professional PowerPoint presentations with pptxgenjs. | Make a slide deck, generate .pptx files, create pitch decks |
+| [**siri-shortcut-editing**](skills/siri-shortcut-editing/SKILL.md) | Edit macOS Siri Shortcuts programmatically — decode, modify, re-sign. | Edit .shortcut files, programmatically modify shortcuts, resign shortcuts |
 | [**youtube-transcript**](skills/youtube-transcript/SKILL.md) | Download YouTube video transcripts via yt-dlp. | Get captions/subtitles, transcribe YouTube videos, extract video text |
 | [**grill-me**](skills/grill-me/SKILL.md) | Grilling session to stress-test a plan or design with relentless questions until every branch is resolved. _Derived from [@mattpocock](https://github.com/mattpocock/skills)._ | Get grilled on a design, clarify a plan, resolve decision trees |
 

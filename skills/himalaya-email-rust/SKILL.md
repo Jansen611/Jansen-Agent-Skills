@@ -14,6 +14,8 @@ description: |
   - "search emails" or "filter emails"
   - "himalaya" explicitly
   - wants to manage email accounts from terminal
+author: Jansen Lin
+license: MIT
 allowed-tools: Bash
 ---
 

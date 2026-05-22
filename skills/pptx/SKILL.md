@@ -7,6 +7,8 @@ description: |
   - "make a ppt" or "create a presentation"
   - "slide deck" or "pitch deck"
   - ".pptx file"
+author: Jansen Lin
+license: MIT
 ---
 
 # PPTX Skill

@@ -10,6 +10,8 @@ description: |
   - "get markdown from file"
   - "summarize this document"
   - wants content extracted from a supported file format
+author: Jansen Lin
+license: MIT
 ---
 
 # MarkItDown Skill

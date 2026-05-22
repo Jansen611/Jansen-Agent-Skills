@@ -9,6 +9,8 @@ description: |
   - "edit a shortcut" or "modify a shortcut"
   - "Siri shortcut"
   - wants to programmatically modify a signed .shortcut file
+author: Jansen Lin
+license: MIT
 allowed-tools: Bash, Read, Write, Edit
 ---
 
