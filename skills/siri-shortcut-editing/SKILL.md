@@ -122,9 +122,15 @@ Variable references use `WFTextTokenAttachment` serialization with `OutputUUID` 
 
 ---
 
-## Dictionary Action Reference
+## Action Reference
 
-For `WFItemType` values, nested object syntax, and common failure modes, see:
+**ALWAYS consult this before writing XML.** Only use identifiers that appear in the reference. Guessing identifiers (e.g. `is.workflow.actions.runpython`) will produce "Unknown Action" in the Shortcuts app.
+
+→ **[references/action-identifiers.md](references/action-identifiers.md)** — Complete list of verified-valid `WFWorkflowActionIdentifier` values, required parameters, and XML templates.
+
+## WFItemType Reference
+
+For dictionary value types, nested object syntax, and common failure modes, see:
 
 → **[references/dictionary-actions.md](references/dictionary-actions.md)**
 
