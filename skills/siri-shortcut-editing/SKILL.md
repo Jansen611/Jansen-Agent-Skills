@@ -122,6 +122,19 @@ Variable references use `WFTextTokenAttachment` serialization with `OutputUUID` 
 
 ---
 
+## Dictionary Action Reference
+
+For `WFItemType` values, nested object syntax, and common failure modes, see:
+
+→ **[references/dictionary-actions.md](references/dictionary-actions.md)**
+
+Key points:
+- `WFItemType=0` = Text, `1` = Nested Object, `2` = Array, `3` = Number, `5` = Variable Reference
+- Nested objects require `WFItemType=1` with **double-wrapped** `WFDictionaryFieldValue`
+- `WFItemType=5` + inline `WFDictionaryFieldValue` → crash
+
+---
+
 ## Security Warning
 
 Shortcuts often contain hardcoded secrets (API keys, tokens). Always warn the user if you find:
