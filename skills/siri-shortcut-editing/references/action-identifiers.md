@@ -109,6 +109,37 @@ To reference a named variable:
 </dict>
 ```
 
+**With inline variable substitution** (`attachmentsByRange`):
+
+When embedding a variable inside a text template, `WFTextActionText` uses `attachmentsByRange` to mark where the variable goes. The `￼` character in the `string` is the placeholder — Shortcuts replaces it with the variable value at runtime.
+
+> **⚠️ If the template is JSON**: Shortcuts only inserts the value — it does NOT add JSON quotes. You must wrap the placeholder in quotes yourself: `"query":"￼"` not `"query":￼`.
+
+The `{offset, length}` key is the 0-indexed position of `￼` in the `string` field.
+
+```xml
+<key>WFTextActionText</key>
+<dict>
+  <key>Value</key>
+  <dict>
+    <key>attachmentsByRange</key>
+    <dict>
+      <key>{12, 1}</key>                     <!-- ￼ is at character position 12 -->
+      <dict>
+        <key>Type</key>
+        <string>Variable</string>
+        <key>VariableName</key>
+        <string>MyVariable</string>
+      </dict>
+    </dict>
+    <key>string</key>
+    <string>The value is ￼ here</string>      <!-- ￼ replaces at position 12 -->
+  </dict>
+  <key>WFSerializationType</key>
+  <string>WFTextTokenString</string>
+</dict>
+```
+
 ### 2. is.workflow.actions.detect.text — Get Text from Input (coercion)
 
 | Param | Type | Required | Notes |
@@ -337,9 +368,9 @@ Use `is.workflow.actions.gettext` with a number string. Number values in diction
 | `WFHTTPBodyType` | string | ✅ | `File` for custom body, `Form` for form data |
 | `WFHTTPHeaders` | dictionary | ✅ | Headers as `WFDictionaryFieldValue` |
 | `WFRequestVariable` | attachment | Yes (POST) | Request body |
-| `ShowHeaders` | boolean | No | `true` to include response headers in output |
+| `ShowHeaders` | boolean | No | `true` to enable custom request headers (shows the "Headers" section in the action UI) |
 
-Output: Returns a dictionary `{Contents: ..., Headers: {}}` when `ShowHeaders=true`, or just the content when `false`.
+Output: Returns the response body. The `Contents of URL` magic variable provides access to the downloaded content.
 
 ```xml
 <dict>
@@ -410,6 +441,13 @@ Output: Returns a dictionary `{Contents: ..., Headers: {}}` when `ShowHeaders=tr
     </dict>
   </dict>
 </dict>
+```
+
+`WFURL` accepts a plain `<string>` as well (as produced by the Shortcuts GUI):
+
+```xml
+<key>WFURL</key>
+<string>https://example.com/api</string>
 ```
 
 ---

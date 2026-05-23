@@ -118,7 +118,18 @@ Key keys in the shortcut plist:
 | `WFWorkflowMinimumClientVersion` | Minimum iOS/macOS version |
 | `WFWorkflowIcon` | Icon glyph & color |
 
-Variable references use `WFTextTokenAttachment` serialization with `OutputUUID` and `OutputName` fields. Literal strings use `WFTextTokenString` with `string` field.
+### Variable References
+
+There are **two distinct ways** to reference a value from earlier in the workflow. They use different fields and are NOT interchangeable:
+
+| Reference Type | `Type` value | Required fields | When to use |
+|---|---|---|---|
+| **Action Output** | `ActionOutput` | `OutputUUID` + `OutputName` | Source action has a named output (CustomOutputName + UUID) |
+| **Named Variable** | `Variable` | `VariableName` | Source is a `SetVariable` action (which has NO UUID on its output) |
+
+Both types use `WFSerializationType=WFTextTokenAttachment`. This applies both in `WFInput` fields and in inline `attachmentsByRange` within `WFTextTokenString` strings.
+
+Literal strings use `WFTextTokenString` with `string` field.
 
 ---
 
