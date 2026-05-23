@@ -1,3 +1,8 @@
+---
+author: Jansen Lin
+license: MIT
+---
+
 # Dictionary Action — WFItemType Reference
 
 ## WFItemType Values

@@ -1,3 +1,8 @@
+---
+author: Jansen Lin
+license: MIT
+---
+
 # Shortcut Action Reference
 
 Known-valid `WFWorkflowActionIdentifier` values extracted from working shortcuts, with required parameters and XML templates.
@@ -147,6 +152,54 @@ To reference a named variable:
 | `WFCaseType` | string | ✅ | `lowercase`, `uppercase`, `capitalize` |
 | `CustomOutputName` | string | No | |
 
+### 7. is.workflow.actions.text.match — Match Text (regex)
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `WFMatchTextPattern` | string | ✅ | Regex pattern |
+| `text` | string/attachment | ✅ | Text to match against |
+| `WFMatchTextCaseSensitive` | boolean | No | |
+| `CustomOutputName` | string | No | |
+
+```xml
+<dict>
+  <key>WFWorkflowActionIdentifier</key>
+  <string>is.workflow.actions.text.match</string>
+  <key>WFWorkflowActionParameters</key>
+  <dict>
+    <key>CustomOutputName</key>
+    <string>MatchedText</string>
+    <key>UUID</key>
+    <string>MATCH-UUID</string>
+    <key>WFMatchTextPattern</key>
+    <string>pattern here</string>
+    <key>text</key>
+    <dict>
+      <key>Value</key>
+      <dict>
+        <key>string</key>
+        <string>input text</string>
+      </dict>
+      <key>WFSerializationType</key>
+      <string>WFTextTokenString</string>
+    </dict>
+  </dict>
+</dict>
+```
+
+### 8. is.workflow.actions.text.combine — Combine Text
+
+Joins a list of text items with a separator.
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `text` | attachment | ✅ | List of text items to join |
+| `WFTextSeparator` | string | Yes | `Custom`, `New Lines`, `Spaces`, `Commas` |
+| `WFTextCustomSeparator` | string/attachment | Yes (if Custom) | Separator string |
+| `CustomOutputName` | string | No | |
+
 ---
 
 ## Dictionary Actions
@@ -233,11 +286,40 @@ The `WFItems` uses `WFDictionaryFieldValueItems` array. See [dictionary-actions.
 | `WFCountType` | string | ✅ | `Items`, `Characters`, `Words`, `Sentences`, `Lines` |
 | `CustomOutputName` | string | No | |
 
+### 3. is.workflow.actions.getitemfromlist — Get Item from List
+
+Gets a single item from a list by index or specifier.
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `WFInput` | attachment | ✅ | List to pick from |
+| `WFItemSpecifier` | string | No | `First Item`, `Last Item`, `Item at Index`, `Random Item` |
+| `CustomOutputName` | string | No | |
+
 ---
 
 ## Math Actions
 
-### 1. is.workflow.actions.number — Number
+### 1. is.workflow.actions.math — Calculate
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `WFInput` | attachment | Yes | Left operand |
+| `WFMathOperand` | string | Yes | Right operand |
+| `WFMathOperation` | string | ✅ | `+`, `-`, `×`, `÷` |
+
+### 2. is.workflow.actions.round — Round Number
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `WFInput` | attachment | ✅ | Number to round |
+| `WFRoundMode` | string | ✅ | `Normal`, `Always Round Up`, `Always Round Down`, `Round to Nearest` |
+| `CustomOutputName` | string | No | |
+
+### 3. is.workflow.actions.number — Number (literal)
 
 Use `is.workflow.actions.gettext` with a number string. Number values in dictionaries use `WFItemType=3`.
 
@@ -362,6 +444,17 @@ Output: Returns a dictionary `{Contents: ..., Headers: {}}` when `ShowHeaders=tr
 | `WFFile` | dict | ✅ |
 | `WFFilePath` | attachment | ✅ |
 | `WFInput` | attachment | ✅ |
+
+### 4. is.workflow.actions.setitemname — Set Name
+
+Renames an item.
+
+| Param | Type | Required |
+|-------|------|----------|
+| `UUID` | string | ✅ |
+| `WFInput` | attachment | ✅ |
+| `WFName` | string | ✅ |
+| `CustomOutputName` | string | No |
 
 ---
 
@@ -519,6 +612,179 @@ End of If block (`WFControlFlowMode=2`):
 | Param | Type | Required |
 |-------|------|----------|
 | `Text` | attachment | ✅ |
+
+---
+
+## URL Actions
+
+### 1. is.workflow.actions.url — URL
+
+Creates a URL value (not a fetch — use `downloadurl` for actual HTTP requests).
+
+| Param | Type | Required |
+|-------|------|----------|
+| `UUID` | string | ✅ |
+| `WFURLActionURL` | string | ✅ |
+
+```xml
+<dict>
+  <key>WFWorkflowActionIdentifier</key>
+  <string>is.workflow.actions.url</string>
+  <key>WFWorkflowActionParameters</key>
+  <dict>
+    <key>UUID</key>
+    <string>URL-ACTION-UUID</string>
+    <key>WFURLActionURL</key>
+    <string>https://example.com</string>
+  </dict>
+</dict>
+```
+
+---
+
+## Rich Text / HTML Actions
+
+### 1. is.workflow.actions.gethtmlfromrichtext — Get HTML from Rich Text
+
+Converts rich text (e.g. from `downloadurl` output) to HTML string.
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `WFInput` | attachment | ✅ | Rich text input |
+| `CustomOutputName` | string | No | |
+| `WFMakeFullDocument` | boolean | No | `true` wraps in full `<html>` document |
+
+```xml
+<dict>
+  <key>WFWorkflowActionIdentifier</key>
+  <string>is.workflow.actions.gethtmlfromrichtext</string>
+  <key>WFWorkflowActionParameters</key>
+  <dict>
+    <key>CustomOutputName</key>
+    <string>HTMLBody</string>
+    <key>UUID</key>
+    <string>HTML-ACTION-UUID</string>
+    <key>WFInput</key>
+    <dict>
+      <key>Value</key>
+      <dict>
+        <key>OutputName</key>
+        <string>Contents of URL</string>
+        <key>OutputUUID</key>
+        <string>DOWNLOADURL-UUID</string>
+        <key>Type</key>
+        <string>ActionOutput</string>
+      </dict>
+      <key>WFSerializationType</key>
+      <string>WFTextTokenAttachment</string>
+    </dict>
+  </dict>
+</dict>
+```
+
+---
+
+## Media Actions
+
+### 1. is.workflow.actions.makespokenaudiofromtext — Make Spoken Audio from Text
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `WFInput` | string/attachment | ✅ | Text to speak |
+| `WFSpeakTextLanguage` | string | ✅ | e.g. `zh-TW`, `en-US` |
+| `WFSpeakTextVoice` | string | ✅ | Voice bundle ID |
+| `WFSpeakTextRate` | real | No | Float, e.g. `0.5` |
+
+```xml
+<dict>
+  <key>WFWorkflowActionIdentifier</key>
+  <string>is.workflow.actions.makespokenaudiofromtext</string>
+  <key>WFWorkflowActionParameters</key>
+  <dict>
+    <key>UUID</key>
+    <string>SPEAK-UUID</string>
+    <key>WFInput</key>
+    <dict>
+      <key>Value</key>
+      <dict>
+        <key>string</key>
+        <string>Text to speak</string>
+      </dict>
+      <key>WFSerializationType</key>
+      <string>WFTextTokenString</string>
+    </dict>
+    <key>WFSpeakTextLanguage</key>
+    <string>zh-TW</string>
+    <key>WFSpeakTextRate</key>
+    <real>0.5</real>
+    <key>WFSpeakTextVoice</key>
+    <string>com.apple.ttsbundle.gryphon-neural_shufen_zh-TW_premium</string>
+  </dict>
+</dict>
+```
+
+---
+
+## Notes Actions
+
+### 1. com.apple.mobilenotes.SharingExtension — Create Note
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `AppIntentDescriptor` | dict | ✅ | `AppIntentIdentifier: CreateNoteLinkAction`, `BundleIdentifier: com.apple.mobilenotes` |
+| `WFCreateNoteInput` | string/attachment | ✅ | Note body content |
+| `WFNoteGroup` | dict | No | Folder reference with `Identifier` |
+| `folder` | dict | No | Folder metadata (title, symbol, identifier) |
+| `name` | string/attachment | No | Note title |
+| `OpenWhenRun` | boolean | No | |
+
+```xml
+<dict>
+  <key>WFWorkflowActionIdentifier</key>
+  <string>com.apple.mobilenotes.SharingExtension</string>
+  <key>WFWorkflowActionParameters</key>
+  <dict>
+    <key>AppIntentDescriptor</key>
+    <dict>
+      <key>AppIntentIdentifier</key>
+      <string>CreateNoteLinkAction</string>
+      <key>BundleIdentifier</key>
+      <string>com.apple.mobilenotes</string>
+      <key>Name</key>
+      <string>备忘录</string>
+      <key>TeamIdentifier</key>
+      <string>0000000000</string>
+    </dict>
+    <key>OpenWhenRun</key>
+    <false/>
+    <key>UUID</key>
+    <string>NOTE-UUID</string>
+    <key>WFCreateNoteInput</key>
+    <dict>
+      <key>Value</key>
+      <dict>
+        <key>string</key>
+        <string>Note content</string>
+      </dict>
+      <key>WFSerializationType</key>
+      <string>WFTextTokenString</string>
+    </dict>
+  </dict>
+</dict>
+```
+
+### 2. is.workflow.actions.appendnote — Append to Note
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `AppIntentDescriptor` | dict | ✅ | `AppIntentIdentifier: AppendToNoteLinkAction` |
+| `WFInput` | attachment | ✅ | Content to append |
+| `WFNote` | attachment | Yes | Target note (from Create Note output) |
+| `CustomOutputName` | string | No | |
 
 ---
 
