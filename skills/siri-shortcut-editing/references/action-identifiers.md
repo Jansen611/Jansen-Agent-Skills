@@ -270,7 +270,17 @@ Joins a list of text items with a separator.
 
 The `WFItems` uses `WFDictionaryFieldValueItems` array. See [dictionary-actions.md](dictionary-actions.md) for complete WFItemType reference.
 
-### 2. is.workflow.actions.getvalueforkey — Get Dictionary Value
+### 2. is.workflow.actions.detect.dictionary — Get Dictionary from Input
+
+Parses a text input (e.g. JSON string) into a dictionary. Useful when a value from an API response is a JSON string rather than a parsed object.
+
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `WFInput` | attachment | ✅ | Input to parse as dictionary |
+| `CustomOutputName` | string | No | |
+
+### 3. is.workflow.actions.getvalueforkey — Get Dictionary Value
 
 | Param | Type | Required | Notes |
 |-------|------|----------|-------|
@@ -280,7 +290,7 @@ The `WFItems` uses `WFDictionaryFieldValueItems` array. See [dictionary-actions.
 | `WFGetDictionaryValueType` | string | No | `Value` to get single value; omit for first match |
 | `CustomOutputName` | string | No | |
 
-### 3. is.workflow.actions.setvalueforkey — Set Dictionary Value
+### 4. is.workflow.actions.setvalueforkey — Set Dictionary Value
 
 | Param | Type | Required | Notes |
 |-------|------|----------|-------|
@@ -538,6 +548,8 @@ Renames an item.
 | `WFControlFlowMode` | integer | ✅ | `0`=start of block, `2`=end of block |
 | `UUID` | string | Yes (for End If) | Only on the closing block |
 | `WFConditions` | dict | No | For compound conditions |
+
+> **Boolean checks**: When checking a boolean from a dictionary (`WFItemType=4`), the variable must include `Aggrandizements` with `WFCoercionVariableAggrandizement` → `CoercionItemClass=WFBooleanContentItem`. Without this coercion, Shortcuts defaults to text comparison and `true`/`false` won't match.
 
 Start of If block (`WFControlFlowMode=0`):
 ```xml

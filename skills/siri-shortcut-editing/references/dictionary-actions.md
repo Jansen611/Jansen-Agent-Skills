@@ -11,8 +11,9 @@ license: MIT
 |------|---------|---------------------|
 | `0` | Text (string) | `WFTextTokenString` |
 | `1` | Nested Object | `WFDictionaryFieldValue` (double-wrapped) |
-| `2` | Array | `WFArraySubstitutableParameterState` |
+| `2` | Array | `WFArraySubstitutableParameterState` or `WFArrayParameterState` |
 | `3` | Number | `WFTextTokenString` |
+| `4` | Boolean | `WFNumberSubstitutableState` with `<true/>` or `<false/>` |
 | `5` | Variable Reference | `WFTextTokenAttachment` |
 
 > **⚠️ `WFItemType=5` with inline `WFDictionaryFieldValue` will crash Shortcuts.** Type 5 is only for variable references (pointing to another action's output).
