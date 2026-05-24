@@ -121,3 +121,69 @@ Add more `<dict>` entries inside the `WFDictionaryFieldValueItems` array:
 | `WFItemType=5` + `WFDictionaryFieldValue` | Shortcuts crash on open |
 | Single-layer `WFDictionaryFieldValue` (missing outer) | Incorrect serialization |
 | Using `setdictionaryvalue` action | May not be available on all versions |
+
+---
+
+## Arrays of Objects: Two Approaches
+
+When a dictionary key needs an array of objects (e.g. an API body with a list of structured items), there are two ways to build it.
+
+### Approach A: Inline (`WFArrayParameterState`)
+
+Nest the array and objects directly inside the dictionary. Works for simple, fixed arrays.
+
+```xml
+<!-- Inside a dictionary value -->
+<key>WFItemType</key><integer>2</integer>
+<key>WFValue</key>
+<dict>
+  <key>Value</key>
+  <array>
+    <dict>
+      <key>WFItemType</key><integer>1</integer>
+      <!-- nested dict inline -->
+    </dict>
+  </array>
+  <key>WFSerializationType</key>
+  <string>WFArrayParameterState</string>
+</dict>
+```
+
+### Approach B: Composed (`WFAArraySubstitutableParameterState`)
+
+Build each object as a standalone dictionary, collect them in a `list` action, set to a variable, then reference that variable. This is the recommended approach for maintainable, extensible arrays.
+
+```xml
+<!-- Step 1: Build each tool as a standalone dictionary -->
+<!-- dictionary → WebSearchTool -->
+<!-- dictionary → AnotherTool -->
+<!-- ... -->
+
+<!-- Step 2: Collect in a list -->
+<!-- list → Tools     → contains: WebSearchTool, AnotherTool -->
+
+<!-- Step 3: Set to variable -->
+<!-- SetVariable → ToolsList -->
+
+<!-- Step 4: Reference in the target dictionary -->
+<key>WFItemType</key><integer>2</integer>
+<key>WFValue</key>
+<dict>
+  <key>Value</key>
+  <dict>
+    <key>Value</key>
+    <dict>
+      <key>Type</key>
+      <string>Variable</string>
+      <key>VariableName</key>
+      <string>ToolsList</string>
+    </dict>
+    <key>WFSerializationType</key>
+    <string>WFTextTokenAttachment</string>
+  </dict>
+  <key>WFSerializationType</key>
+  <string>WFArraySubstitutableParameterState</string>
+</dict>
+```
+
+Use Approach B when you need to add/remove items without digging through deeply nested XML.
