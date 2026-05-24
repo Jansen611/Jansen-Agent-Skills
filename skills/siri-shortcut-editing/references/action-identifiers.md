@@ -153,10 +153,35 @@ The `{offset, length}` key is the 0-indexed position of `￼` in the `string` fi
 | Param | Type | Required | Notes |
 |-------|------|----------|-------|
 | `UUID` | string | ✅ | |
-| `WFInput` | attachment | ✅ | |
+| `WFInput` | attachment | ✅ | Uses `WFTextTokenString` + `attachmentsByRange` format (same pattern as `gettext` inline substitution) |
 | `WFReplaceTextFind` | string | ✅ | Pattern to find (plain text or regex with isRegex=true) |
 | `WFReplaceTextReplace` | string | No | Replacement string |
 | `CustomOutputName` | string | No | |
+
+```xml
+<key>WFInput</key>
+<dict>
+  <key>Value</key>
+  <dict>
+    <key>attachmentsByRange</key>
+    <dict>
+      <key>{0, 1}</key>
+      <dict>
+        <key>OutputName</key>
+        <string>SourceText</string>
+        <key>OutputUUID</key>
+        <string>SOURCE-UUID</string>
+        <key>Type</key>
+        <string>ActionOutput</string>
+      </dict>
+    </dict>
+    <key>string</key>
+    <string>￼</string>
+  </dict>
+  <key>WFSerializationType</key>
+  <string>WFTextTokenString</string>
+</dict>
+```
 
 ### 4. is.workflow.actions.text.split — Split Text
 
@@ -371,6 +396,8 @@ Use `is.workflow.actions.gettext` with a number string. Number values in diction
 | `ShowHeaders` | boolean | No | `true` to enable custom request headers (shows the "Headers" section in the action UI) |
 
 Output: Returns the response body. The `Contents of URL` magic variable provides access to the downloaded content.
+
+> **Content-Type handling**: Shortcuts only auto-imports known text MIME types (e.g. `application/json`, `text/plain`) from `Contents of URL`. Other types like `text/event-stream` are treated as binary and blocked from reading unless the response has a known file extension. Workaround: save to a `.txt` file with `documentpicker.save`, then read back with `detect.text`.
 
 ```xml
 <dict>
