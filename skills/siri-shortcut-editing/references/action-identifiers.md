@@ -282,13 +282,15 @@ The `WFItems` uses `WFDictionaryFieldValueItems` array. See [dictionary-actions.
 
 ### 3. is.workflow.actions.setvalueforkey — Set Dictionary Value
 
-| Param | Type | Required |
-|-------|------|----------|
-| `UUID` | string | ✅ |
-| `WFDictionary` | attachment | ✅ |
-| `WFDictionaryKey` | string | ✅ |
-| `WFDictionaryValue` | attachment | ✅ |
-| `CustomOutputName` | string | No |
+| Param | Type | Required | Notes |
+|-------|------|----------|-------|
+| `UUID` | string | ✅ | |
+| `WFDictionary` | attachment | ✅ | Dictionary to modify |
+| `WFDictionaryKey` | string | ✅ | Key to set |
+| `WFDictionaryValue` | attachment | ✅ | Value to set. Only supports text, number, or dictionary — arrays are not supported |
+| `CustomOutputName` | string | No | |
+
+> **Limitation**: `setvalueforkey` cannot set a key to an array value. Workaround: build two separate dictionaries (one with the array, one without) and select between them with an If block.
 
 ---
 
